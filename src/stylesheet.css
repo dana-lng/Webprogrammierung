@@ -1,0 +1,101 @@
+body {
+    font-family: Arial, sans-serif;
+    place-items: center;
+    height: 100vh;
+    margin-left: 40px;
+    background-color: #333333;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #111111;
+    border-radius: 10px;
+    box-shadow: 0 0 30px #222222;
+    overflow: hidden;
+    width: 300px;
+    color: white;
+    font-size: 25px;
+    font-weight: bold;
+    padding: 20px;
+    margin-left: 700px;
+}
+
+.btn {
+    cursor: pointer;
+   
+}
+
+.kalender {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr) ;
+    gap: 10px;
+
+}
+
+.month {
+    background-color: #111111;
+    border-radius: 10px;
+    box-shadow: 0 0 30px #222222;
+    overflow: hidden;
+    color: white;
+    padding: 20px;
+    width: 370px;
+    height: 350px;
+    margin-top: 50px;
+}
+
+.month-name {
+    font-size: 20px;
+    text-align: center;
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+    color: rgb(255, 255, 255);
+}
+
+.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    min-height: 240px;
+}
+
+.weekdays div, .days div {
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 5px;
+}
+
+.days div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    padding-bottom: 10px;
+}
+
+.days div:hover {
+    background-color: rgba(255, 255, 255, 0.589);
+    color: rgb(111, 0, 255);
+}
+
+
+.days .today {
+    background-color: rgb(111, 0, 255);
+    color: white;
+}
+
+
+.fade {
+    color: rgb(109, 109, 109);
+}
