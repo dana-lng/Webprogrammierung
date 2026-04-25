@@ -53,9 +53,17 @@ body {
     text-align: center;
 }
 
+.kalenderwoche {
+    color: rgb(133, 57, 255);
+}
+
+.kw {
+    color: rgb(133, 57, 255);
+}
+
 .weekdays {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(8, 1fr);
     margin-top: 15px;
     text-align: center;
     font-weight: bold;
@@ -64,7 +72,7 @@ body {
 
 .days {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(8, 1fr);
     gap: 4px;
     min-height: 240px;
 }
@@ -90,7 +98,7 @@ body {
 }
 
 
-.days .today {
+.today {
     background-color: rgb(111, 0, 255);
     color: white;
 }
