@@ -1,10 +1,35 @@
-    
     let feiertageDaten = null;
+    let geburtstagsDaten = null;
+    let Geburtstage = [];
+    let randomGeburtstag = [];
+    let currentDate = new Date();
+    let today = new Date();
+    let monat = String(today.getMonth() + 1).padStart(2, '0');
+    let tag = String(today.getDate()).padStart(2, '0');
+    
 
     // Lädt holiydays.json per Axas einmalig beim Start
     async function ladeFeiertage() {
         const response = await fetch('holidays.json');
         feiertageDaten = await response.json();        
+    }
+
+    // Lädt Geburtstage aus der API
+    async function ladeGeburtstage() {
+        const response = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/births/${monat}/${tag}`);
+        geburtstagsDaten = await response.json();
+        Geburtstage = geburtstagsDaten.births;
+    }
+
+    function randomGeburtstage() {
+        let result = [];
+        while (result.length < 5) {
+            const zufall = Geburtstage[Math.floor(Math.random() * Geburtstage.length)];
+            if (!result.includes(zufall)) {
+                result.push(zufall);
+            }
+        }
+        return result;
     }
 
     // Gaußsche Osterformel - berechnet den Ostersonntag für ein gegebenes Jahr
@@ -96,8 +121,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     const load = document.getElementById('newload');
     const hide = document.getElementById('hide');
     const topbar = document.querySelector('.topbar');
-    let currentDate = new Date();
-    let today = new Date();
     // Modal-Logik, damit Anzeige der Feiertage schöner ist
     const modal = document.getElementById('modal');
     const modalText = document.getElementById('modal-text');
@@ -111,6 +134,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Feiertage laden bevor der Kalender gerändert wird
     await ladeFeiertage();
+
+    // Geburtstage laden bevor der Kalender gerändert wird
+    await ladeGeburtstage();
 
     function renderCalender(date) {
         const getYear = date.getFullYear();
@@ -182,6 +208,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
                 // Feiertage prüfen und markieren
                 const feiertagName = getFeiertagName(getYear, monthIndex + 1, i);
+                const randomGeburtstag = randomGeburtstage();
                 if (feiertagName) {
                     dayDiv.classList.add('feiertag');
                     dayDiv.dataset.feiertag = feiertagName;
@@ -190,6 +217,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                     dayDiv.addEventListener('click', () => zeigModal(`${feiertagName} - ${i}. ${monthIndex + 1}. ${getYear}`));
 
                 }
+                else {
+                    dayDiv.addEventListener('click', () => {let text = ''; for (let i = 0; i<randomGeburtstag.length; i++) {
+                            text += randomGeburtstag[i].text + ', ' + randomGeburtstag[i].year + '\n\n'; 
+                        };
+                            zeigModal(text);
+                    });
+                }
+
 
                 daysContainer.appendChild(dayDiv);
 
