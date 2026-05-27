@@ -1,0 +1,61 @@
+{
+    "statisch": [
+        {
+            "name": "Neujahr",
+            "monat": 1,
+            "tag": 1
+        },
+        {
+            "name": "Tag der Arbeit",
+            "monat": 5,
+            "tag": 1
+        },
+        {
+            "name": "Tag der deutschen Einheit",
+            "monat": 10,
+            "tag": 3
+        },
+        {
+            "name": "Reformationstag",
+            "monat": 10,
+            "tag": 31
+        },
+        {
+            "name": "Erster Weihnachtsfeiertag",
+            "monat": 12,
+            "tag": 25
+        },
+        {
+            "name": "zweiter Weihnachtsfeiertag",
+            "monat": 12,
+            "tag": 26
+        }
+    ],
+
+    "dynamisch": [
+        {
+            "name": "Karfreitag",
+            "tageVonOstern": -2
+        },
+
+        {
+            "name": "Ostermontag",
+            "tageVonOstern": 1
+        },
+
+        {
+            "name": "Himmelfahrt",
+            "tageVonOstern": 39
+        },
+
+        {
+            "name": "Pfingsmontag",
+            "tageVonOstern": 50
+        },
+
+        {
+            "name": "Buß- und Bettag",
+            "tageVonOstern": null
+        }
+    ]
+}

@@ -6,7 +6,7 @@ body {
     background-color: #333333;
 }
 
-.header {
+.topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -20,12 +20,48 @@ body {
     font-size: 25px;
     font-weight: bold;
     padding: 20px;
-    margin-left: 700px;
+    margin-left: 730px;
+
+}
+
+#year {
+    background-color: #111111;
+    color: white;
+    font-size: 22px;
+    height: 50px;
+    width: 80px;
+    border-color: #111111;
 }
 
 .btn {
     cursor: pointer;
    
+}
+
+.header {
+    display: flex;
+    gap: 20px;
+    padding-left: 1680px;
+    padding-top: 20px;
+
+
+}
+
+
+#newload {
+    background-color: #111111;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+
+}
+
+#hide {
+    background-color: #111111;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+
 }
 
 .kalender {
@@ -46,6 +82,7 @@ body {
     width: 370px;
     height: 350px;
     margin-top: 50px;
+    margin-bottom: 20px;
 }
 
 .month-name {
@@ -106,4 +143,49 @@ body {
 
 .fade {
     color: rgb(109, 109, 109);
+}
+
+.feiertag {
+    background-color: rgb(0, 119, 255);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Heute ist gleichzeitig Feiertag */
+.today.feiertag {
+    background-color: rgb(111, 0, 255);
+    outline: 2px solid #f39c12;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal-box {
+    background: #2a2a2a;
+    color: white;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.5rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    white-space: 0px;
+}
+
+#modal-close {
+    margin-top: 1rem;
+    padding: 0.4rem 1.5rem;
+    background: rgb(0, 119, 255);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
 }
