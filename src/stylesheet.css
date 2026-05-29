@@ -152,6 +152,10 @@ body {
     cursor: pointer;
 }
 
+.geburtstage {
+    color: rebeccapurple;
+}
+
 /* Heute ist gleichzeitig Feiertag */
 .today.feiertag {
     background-color: rgb(111, 0, 255);
@@ -171,12 +175,14 @@ body {
 .modal-box {
     background: #2a2a2a;
     color: white;
+    font-weight: bold;
+    line-height: 50px;
     padding: 2rem 2.5rem;
     border-radius: 12px;
     text-align: center;
     font-size: 1.5rem;
     box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-    white-space: 0px;
+    white-space: pre-line;
 }
 
 #modal-close {

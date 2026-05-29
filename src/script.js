@@ -4,8 +4,9 @@
     let randomGeburtstag = [];
     let currentDate = new Date();
     let today = new Date();
-    let monat = String(today.getMonth() + 1).padStart(2, '0');
-    let tag = String(today.getDate()).padStart(2, '0');
+
+    //let monat = String(today.getMonth() + 1).padStart(2, '0');
+    //let tag = String(today.getDate()).padStart(2, '0');
     
 
     // Lädt holiydays.json per Axas einmalig beim Start
@@ -15,10 +16,10 @@
     }
 
     // Lädt Geburtstage aus der API
-    async function ladeGeburtstage() {
+    async function ladeGeburtstage(monat, tag) {
         const response = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/births/${monat}/${tag}`);
-        geburtstagsDaten = await response.json();
-        Geburtstage = geburtstagsDaten.births;
+        const geburtstagsDaten = await response.json();
+        return geburtstagsDaten.births;
     }
 
     function randomGeburtstage() {
@@ -135,8 +136,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Feiertage laden bevor der Kalender gerändert wird
     await ladeFeiertage();
 
-    // Geburtstage laden bevor der Kalender gerändert wird
-    await ladeGeburtstage();
 
     function renderCalender(date) {
         const getYear = date.getFullYear();
@@ -208,7 +207,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
                 // Feiertage prüfen und markieren
                 const feiertagName = getFeiertagName(getYear, monthIndex + 1, i);
-                const randomGeburtstag = randomGeburtstage();
                 if (feiertagName) {
                     dayDiv.classList.add('feiertag');
                     dayDiv.dataset.feiertag = feiertagName;
@@ -218,10 +216,44 @@ document.addEventListener('DOMContentLoaded', async function() {
 
                 }
                 else {
-                    dayDiv.addEventListener('click', () => {let text = ''; for (let i = 0; i<randomGeburtstag.length; i++) {
-                            text += randomGeburtstag[i].text + ', ' + randomGeburtstag[i].year + '\n\n'; 
-                        };
-                            zeigModal(text);
+                    dayDiv.addEventListener('click', async () => {
+                        let zufaellige = [];
+                        let key = `births_${String(monthIndex + 1).padStart(2, '0')}_${String(i).padStart(2, '0')}`;
+                        let gespeichert = localStorage.getItem(key);
+                        let daten;
+
+                        if (gespeichert) {
+                            // Daten lesen
+                            daten = JSON.parse(gespeichert);
+                        }
+                        else {
+                            // Daten speichern
+                            daten = await ladeGeburtstage(String(monthIndex + 1).padStart(2, '0'), String(i).padStart(2, '0'));
+                            
+                            //reduziert die Datenn nur auf den Namen und das Geburtsjahr, damit der Speicher nicht direkt voll wird 
+                            const reduziert = daten.map(person => ({text: person.text, year: person.year}));
+                            
+                            localStorage.setItem(key, JSON.stringify(reduziert));
+
+                            daten = reduziert;
+                        }
+
+                        while (zufaellige.length < 5) {
+                            const person =
+                                daten[Math.floor(Math.random() * daten.length)];
+
+                            if (!zufaellige.includes(person)) {
+                                zufaellige.push(person);
+                            }
+                        }
+
+                        let text = '';
+
+                        for (const person of zufaellige) {
+                            text += `${person.text}, ${person.year}\n`;
+                        }
+
+                        zeigModal(text);
                     });
                 }
 
