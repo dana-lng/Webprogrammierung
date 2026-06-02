@@ -1,167 +1,178 @@
+/* Setzt fuer alle Elemente ein berechenbares Box-Modell */
+* {
+    box-sizing: border-box;
+}
+
+/* Grundlayout der gesamten Seite */
 body {
     font-family: Arial, sans-serif;
-    place-items: center;
-    height: 100vh;
-    margin-left: 40px;
+    min-height: 100vh;
+    margin: 0;
+    padding: clamp(16px, 3vw, 40px);
     background-color: #333333;
 }
 
+/* Container fuer Jahresauswahl, Navigationspfeile und Reload-Button */
 .topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    gap: 16px;
+    width: min(100%, 360px);
+    margin: 0 auto 28px;
+    padding: 20px;
     background-color: #111111;
     border-radius: 10px;
     box-shadow: 0 0 30px #222222;
     overflow: hidden;
-    width: 300px;
     color: white;
     font-size: 25px;
     font-weight: bold;
-    padding: 20px;
-    margin-left: 730px;
-
 }
 
+/* Select-Feld fuer die Jahresauswahl */
 #year {
     background-color: #111111;
     color: white;
     font-size: 22px;
     height: 50px;
-    width: 80px;
+    width: 90px;
     border-color: #111111;
+    text-align: center;
 }
 
+/* Allgemeine Cursor-Regel fuer klickbare Buttons */
 .btn {
     cursor: pointer;
-   
 }
 
-.header {
+/* Zentriert die Inhalte der Buttons in der Topbar */
+.topbar .btn,
+#newload {
     display: flex;
-    gap: 20px;
-    padding-left: 1680px;
-    padding-top: 20px;
-
-
+    align-items: center;
+    justify-content: center;
 }
 
-
+/* Flaeche und Hintergrund fuer Reload- und Hide-Button */
 #newload {
     background-color: #111111;
     width: 50px;
     height: 50px;
     border-radius: 10px;
-
 }
 
-#hide {
-    background-color: #111111;
-    width: 50px;
-    height: 50px;
-    border-radius: 10px;
-
+/* Skaliert die SVG-Icons passend in ihre Button-Flaeche */
+#newload svg {
+    width: 100%;
+    height: 100%;
 }
 
+/* Hauptcontainer des Kalenders mit vier Monatsspalten auf Desktop */
 .kalender {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(3, 1fr) ;
-    gap: 10px;
-
+    grid-template-columns: repeat(4, minmax(240px, 1fr));
+    gap: clamp(10px, 1.5vw, 20px);
+    width: 100%;
 }
 
+/* Container fuer einen einzelnen Monat */
 .month {
     background-color: #111111;
     border-radius: 10px;
     box-shadow: 0 0 30px #222222;
     overflow: hidden;
     color: white;
-    padding: 20px;
-    width: 370px;
-    height: 350px;
-    margin-top: 50px;
-    margin-bottom: 20px;
+    padding: clamp(14px, 1.4vw, 20px);
+    width: 100%;
+    min-height: clamp(320px, 23vw, 370px);
 }
 
+/* Ueberschrift mit dem Monatsnamen */
 .month-name {
-    font-size: 20px;
+    font-size: clamp(18px, 1.4vw, 22px);
     text-align: center;
 }
 
+/* Beschriftung der Kalenderwochen-Spalte */
 .kalenderwoche {
     color: rgb(133, 57, 255);
 }
 
+/* Kalenderwochennummern innerhalb der Tagesansicht */
 .kw {
     color: rgb(133, 57, 255);
 }
 
+/* Zeile mit Kalenderwoche und Wochentagen */
 .weekdays {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(8, minmax(0, 1fr));
     margin-top: 15px;
     text-align: center;
     font-weight: bold;
     color: rgb(255, 255, 255);
 }
 
+/* Grid fuer alle Tageszellen eines Monats */
 .days {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 4px;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: clamp(3px, 0.5vw, 5px);
     min-height: 240px;
 }
 
-.weekdays div, .days div {
+/* Gemeinsame Text- und Abstandseinstellungen fuer Kopf- und Tageszellen */
+.weekdays div,
+.days div {
     text-align: center;
-    padding: 10px 0;
+    padding: clamp(7px, 0.7vw, 10px) 0;
     border-radius: 5px;
+    font-size: clamp(13px, 1vw, 16px);
 }
 
+/* Einzelne Tageszelle im Kalender */
 .days div {
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: clamp(28px, 2.2vw, 36px);
     cursor: pointer;
     transition: background-color 0.3s;
-    padding-bottom: 10px;
 }
 
+/* Hover-Effekt fuer Tageszellen */
 .days div:hover {
     background-color: rgba(255, 255, 255, 0.589);
     color: rgb(111, 0, 255);
 }
 
-
+/* Markierung fuer den heutigen Tag */
 .today {
     background-color: rgb(111, 0, 255);
     color: white;
 }
 
-
+/* Darstellung fuer Tage aus vorherigem oder folgendem Monat */
 .fade {
     color: rgb(109, 109, 109);
 }
 
+/* Markierung fuer Feiertage */
 .feiertag {
-    background-color: rgb(0, 119, 255);
+    background-color: rgba(0, 119, 255, 0.685);
     color: white;
     border-radius: 50%;
     cursor: pointer;
 }
 
-.geburtstage {
-    color: rebeccapurple;
-}
-
-/* Heute ist gleichzeitig Feiertag */
+/* Sonderfall: Heute ist gleichzeitig Feiertag */
 .today.feiertag {
     background-color: rgb(111, 0, 255);
     outline: 2px solid #f39c12;
 }
 
+/* Abdunkelnder Hintergrund fuer das Modal */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -170,8 +181,10 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 999;
+    padding: 16px;
 }
 
+/* Inhaltsbox des Modals */
 .modal-box {
     background: #2a2a2a;
     color: white;
@@ -183,8 +196,10 @@ body {
     font-size: 1.5rem;
     box-shadow: 0 8px 30px rgba(0,0,0,0.5);
     white-space: pre-line;
+    max-width: min(100%, 720px);
 }
 
+/* Schliessen-Button im Modal */
 #modal-close {
     margin-top: 1rem;
     padding: 0.4rem 1.5rem;
@@ -194,4 +209,138 @@ body {
     border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
+}
+
+/* Tablet-Modus: reduziert die Kalenderbreite und vergroessert Bedienelemente */
+@media (max-width: 1024px) {
+    /* Seitenabstand fuer Tablet-Bildschirme */
+    body {
+        padding: 24px;
+    }
+
+    /* Topbar bekommt mehr Breite und groessere Schrift */
+    .topbar {
+        width: min(100%, 440px);
+        padding: 22px;
+        font-size: 28px;
+    }
+
+    /* Navigationsbuttons werden fuer Touch-Bedienung groesser */
+    .topbar .btn {
+        min-width: 52px;
+        min-height: 52px;
+    }
+
+    /* Jahresauswahl wird auf Tablets besser bedienbar */
+    #year {
+        width: 120px;
+        height: 56px;
+        font-size: 26px;
+    }
+
+    /* Kalender zeigt im Tablet-Modus zwei Monate pro Zeile */
+    .kalender {
+        grid-template-columns: repeat(2, minmax(260px, 1fr));
+        gap: 18px;
+    }
+
+    /* Monatskarten erhalten etwas mehr Innenabstand */
+    .month {
+        min-height: 360px;
+        padding: 18px;
+    }
+
+    /* Tages- und Wochentagtexte werden leicht groesser */
+    .weekdays div,
+    .days div {
+        font-size: 15px;
+    }
+}
+
+/* Handy-Modus: einspaltiger Kalender mit grossen Touch-Flaechen */
+@media (max-width: 600px) {
+    /* Kompakter Seitenabstand fuer kleine Displays */
+    body {
+        padding: 16px 10px;
+    }
+
+    /* Zentriert einen optionalen Header auf kleinen Bildschirmen */
+    .header {
+        justify-content: center;
+        gap: 14px;
+    }
+
+    /* Reload- und Hide-Button werden auf Handys groesser */
+    #newload,
+    #hide {
+        width: 56px;
+        height: 56px;
+    }
+
+    /* Topbar nutzt auf Handys die volle Breite */
+    .topbar {
+        width: 100%;
+        gap: 12px;
+        padding: 16px;
+        margin-bottom: 18px;
+        font-size: 30px;
+    }
+
+    /* Topbar-Buttons erhalten eine gut antippbare Mindestgroesse */
+    .topbar .btn {
+        min-width: 56px;
+        min-height: 56px;
+        font-size: 30px;
+    }
+
+    /* Jahresauswahl fuellt den verfuegbaren Platz in der Topbar */
+    #year {
+        flex: 1;
+        min-width: 0;
+        height: 60px;
+        font-size: 28px;
+    }
+
+    /* Kalender wechselt auf eine Monatsspalte */
+    .kalender {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    /* Monatskarten passen sich der Inhaltsgroesse an */
+    .month {
+        min-height: auto;
+        padding: 14px 10px 16px;
+    }
+
+    /* Monatsname wird auf Handys etwas deutlicher */
+    .month-name {
+        font-size: 22px;
+    }
+
+    /* Abstand zwischen Monatsname und Wochentagen wird reduziert */
+    .weekdays {
+        margin-top: 12px;
+    }
+
+    /* Tagesraster wird kompakter, aber bleibt antippbar */
+    .days {
+        min-height: auto;
+        gap: 3px;
+    }
+
+    /* Tageszellen erhalten eine feste Mindesthoehe fuer Touch */
+    .weekdays div,
+    .days div {
+        min-height: 36px;
+        padding: 8px 0;
+        font-size: 14px;
+    }
+
+    /* Modal wird auf kleinen Displays kompakter */
+    .modal-box {
+        padding: 1.5rem;
+        line-height: 1.6;
+        font-size: 1.1rem;
+    }
 }

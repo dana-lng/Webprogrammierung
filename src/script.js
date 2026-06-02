@@ -1,118 +1,110 @@
-    let feiertageDaten = null;
-    let geburtstagsDaten = null;
-    let Geburtstage = [];
-    let randomGeburtstag = [];
-    let currentDate = new Date();
-    let today = new Date();
+let feiertageDaten = null;
+let geburtstagsDaten = null;
+let Geburtstage = [];
+let randomGeburtstag = [];
+let currentDate = new Date();
+let today = new Date();
 
-    //let monat = String(today.getMonth() + 1).padStart(2, '0');
-    //let tag = String(today.getDate()).padStart(2, '0');
-    
+// Service Worker fuer die PWA registrieren
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker registriert'))
+        .catch(err => console.error('Fehler:', err));
+}
 
-    // Lädt holiydays.json per Axas einmalig beim Start
-    async function ladeFeiertage() {
-        const response = await fetch('holidays.json');
-        feiertageDaten = await response.json();        
-    }
+// Feiertagsdaten einmalig aus der JSON-Datei laden
+async function ladeFeiertage() {
+    const response = await fetch('holidays.json');
+    feiertageDaten = await response.json();
+}
 
-    // Lädt Geburtstage aus der API
-    async function ladeGeburtstage(monat, tag) {
-        const response = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/births/${monat}/${tag}`);
-        const geburtstagsDaten = await response.json();
-        return geburtstagsDaten.births;
-    }
+// Geburtstage fuer ein bestimmtes Datum aus der Wikimedia API laden
+async function ladeGeburtstage(monat, tag) {
+    const response = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/births/${monat}/${tag}`);
+    const geburtstagsDaten = await response.json();
+    return geburtstagsDaten.births;
+}
 
-    function randomGeburtstage() {
-        let result = [];
-        while (result.length < 5) {
-            const zufall = Geburtstage[Math.floor(Math.random() * Geburtstage.length)];
-            if (!result.includes(zufall)) {
-                result.push(zufall);
-            }
-        }
-        return result;
-    }
+// Ostersonntag fuer ein Jahr berechnen
+function berechneOstern(jahr) {
+    const a = jahr % 19;                                    // Position im 19-Jahres-Mondzyklus (Metonischer Zyklus)
+    const b = Math.floor(jahr / 100);                       // Jahrhundert
+    const c = jahr % 100;                                   // Jahr innerhalb des Jahrhunderts
+    const d = Math.floor(b / 4);                            // Schaltjahrkorrektur des Jahrhunderts
+    const e = b % 4;                                        // Rest der Jahrhundertkorrektur
+    const f = Math.floor((b + 8) / 25);                     // Mondkorrektur
+    const g = Math.floor((b - f + 1) / 3);                  // weitere Mondkorrektur
+    const h = (19*a + b - d - g + 15) % 30;                 // Abstand des Vollmonds vom 21. Maerz
+    const i = Math.floor(c / 4);                            // Schaltjahrkorrektur des Jahres
+    const k = c % 4;                                        // Rest der Jahreskorrektur
+    const l = (32 + 2*e + 2*i - h - k) % 7;                 // Wochentag-Korrektur damit Ostern ein Sonntag ist
+    const m = Math.floor((a + 11*h + 22*l) / 451);          // Sonderfall-Korrektur fuer April
+    const monat = Math.floor((h + l - 7*m + 114) / 31);     // Ergibt 3 (Maerz) oder 4 (April)
+    const tag = ((h + l - 7*m + 114) % 31) + 1;             // Tageszahl des Ostersonntags
+    return new Date(jahr, monat - 1, tag);                  // monat - 1 weil JS Monate 0-basiert sind
+}
 
-    // Gaußsche Osterformel - berechnet den Ostersonntag für ein gegebenes Jahr
-    function berechneOstern(jahr) {
-        const a = jahr % 19;                            // Position im 19-Jahres-Mondzyklus (Metonischer Zyklus)
-        const b = Math.floor(jahr / 100);              // Jahrhundert
-        const c = jahr % 100;                          // Jahr innerhalb des Jahrhunderts
-        const d = Math.floor(b / 4);                   // Schaltjahrhkorrektur des Jahrhunderts
-        const e = b % 4;                               // Rest der Jahrhundertkorrektur
-        const f = Math.floor((b + 8) / 25);            // Mondkorrektur
-        const g = Math.floor((b - f + 1) / 3);         // weitere Mondkorrektur
-        const h = (19*a + b - d - g + 15) % 30;        // Abstand des Vollmonds vom 21. März
-        const i = Math.floor(c / 4);                   // Schaltjahreskorrektur des Jahres
-        const k = c % 4;                               // Rest der Jahreskorrektur
-        const l = (32 + 2*e + 2*i - h - k) % 7;        // Wochentag-Korrektur damit Ostern ein Sonntag ist
-        const m = Math.floor((a + 11*h + 22*l) / 451); // Sonderfall-Korrektur für April
-        const monat = Math.floor((h + l - 7*m + 114) / 31);     // Ergibt 3 (März) oder 4 (April)
-        const tag = ((h + l - 7*m + 114) % 31) + 1;             // Tageszahl des Ostersonntags
-        return new Date(jahr, monat - 1, tag);          // monat - 1 weil JS Monate 0-basiert sind
-    }
+// Buss- und Bettag ist der Mittwoch vor dem 23. November
+function berechneBussBettag(jahr) {
+    const nov23 = new Date(jahr, 10, 23);
+    const wt = nov23.getDay();
+    const tageZurueck = wt === 3 ? 7 : (wt + 4) % 7;
+    const result = new Date(nov23);
+    result.setDate(nov23.getDate() - tageZurueck);
+    return result;
+}
 
-    // Buß- und Bettag = Mittwoch vor dem 23. November 
-    function berechneBussBettag(jahr) {
-        const nov23 = new Date(jahr, 10, 23);
-        const wt = nov23.getDay();
-        const tageZurueck = wt === 3 ? 7 : (wt + 4) % 7;
-        const result = new Date(nov23);
-        result.setDate(nov23.getDate() - tageZurueck);
-        return result;
-    }
+// Cache fuer berechnete Feiertage pro Jahr
+const _feiertagCache = [];
 
-    const _feiertagCache = [];
+// Feiertagsnamen fuer einen bestimmten Tag ermitteln
+function getFeiertagName(jahr, monat, tag) {
+    if (!feiertageDaten) return null;
 
-    function getFeiertagName(jahr, monat, tag) {
-        if (!feiertageDaten) return null;
+    if (!_feiertagCache[jahr]) {
+        const map = new Map();
+        const ostern = berechneOstern(jahr);
 
-        if (!_feiertagCache[jahr]) {
-            const map = new Map();
-            const ostern = berechneOstern(jahr);
-
-            // statische Feiertage
-            for (const ft of feiertageDaten.statisch) {
-                const d = new Date(jahr, ft.monat - 1, ft.tag);
-                map.set(d.toDateString(), ft.name);
-            }
-
-            // dynamische Feiertage
-            for (const ft of feiertageDaten.dynamisch) {
-                let d;
-                if (ft.tageVonOstern === null) {
-                    d = berechneBussBettag(jahr);
-                }
-                else {
-                    d = new Date(ostern);
-                    d.setDate(ostern.getDate() + ft.tageVonOstern);
-                }
-                map.set(d.toDateString(), ft.name);
-            }
-            _feiertagCache[jahr] = map;
+        // statische Feiertage in die Jahresliste eintragen
+        for (const ft of feiertageDaten.statisch) {
+            const d = new Date(jahr, ft.monat - 1, ft.tag);
+            map.set(d.toDateString(), ft.name);
         }
 
-        const key = new Date(jahr, monat - 1, tag).toDateString();
-        return _feiertagCache[jahr].get(key) || null;
+        // dynamische Feiertage berechnen und eintragen
+        for (const ft of feiertageDaten.dynamisch) {
+            let d;
+            if (ft.tageVonOstern === null) {
+                d = berechneBussBettag(jahr);
+            }
+            else {
+                d = new Date(ostern);
+                d.setDate(ostern.getDate() + ft.tageVonOstern);
+            }
+            map.set(d.toDateString(), ft.name);
+        }
+        _feiertagCache[jahr] = map;
     }
 
-    // Berechnung der Kalenderwochen
-    function getCalenderWeek(date) {
-        const tempDate = new Date(date);
-        tempDate.setHours(0, 0, 0, 0);
+    const key = new Date(jahr, monat - 1, tag).toDateString();
+    return _feiertagCache[jahr].get(key) || null;
+}
 
-        // Donnerstag der aktuellen Woche bestimmen
-        tempDate.setDate(tempDate.getDate() + 3 - ((tempDate.getDay() + 6) % 7));
+// ISO-Kalenderwoche fuer ein Datum berechnen
+function getCalenderWeek(date) {
+    const tempDate = new Date(date);
+    tempDate.setHours(0, 0, 0, 0);
 
-        // nimmt den 4. Januar (der liegt immer im neuen Jahr)
-        const week1 = new Date(tempDate.getFullYear(), 0, 4);
+    // Donnerstag bestimmt die Kalenderwoche
+    tempDate.setDate(tempDate.getDate() + 3 - ((tempDate.getDay() + 6) % 7));
 
-        return (1 + Math.round(((tempDate - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7 )) / 7); 
-    }
+    // KW 1 ist die Woche mit dem 4. Januar
+    const week1 = new Date(tempDate.getFullYear(), 0, 4);
 
+    return (1 + Math.round(((tempDate - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7 )) / 7);
+}
 
-
-// Funktion um akutelles Jahr anzuzeigen + Tage im Kalender
+// Kalender nach dem Laden der Seite aufbauen
 document.addEventListener('DOMContentLoaded', async function() {
     const yearContainter = document.getElementById('year');
     const monthContainer = document.querySelectorAll('.month');
@@ -120,34 +112,39 @@ document.addEventListener('DOMContentLoaded', async function() {
     const nextButton = document.getElementById('next');
     const select = document.getElementById('year');
     const load = document.getElementById('newload');
-    const hide = document.getElementById('hide');
     const topbar = document.querySelector('.topbar');
-    // Modal-Logik, damit Anzeige der Feiertage schöner ist
     const modal = document.getElementById('modal');
     const modalText = document.getElementById('modal-text');
+
+    // Modal schliessen
     document.getElementById('modal-close').addEventListener('click', () => { modal.style.display = 'none';})
 
-    // Hilfsfunktion um Modal zu öffnen
+    // Modal mit Text anzeigen
     function zeigModal(text) {
         modalText.textContent = text;
         modal.style.display = 'flex';
     }
-    
-    // Feiertage laden bevor der Kalender gerändert wird
+
+    // Browser-Titel dynamisch setzen
+    const aktuellesDatum = today.getFullYear();
+    document.title = `Jahreskalender ${aktuellesDatum}`;
+
+    // Feiertage vor dem Rendern laden
     await ladeFeiertage();
 
-
+    // Jahreskalender fuer das uebergebene Datum rendern
     function renderCalender(date) {
         const getYear = date.getFullYear();
 
         yearContainter.textContent = `${getYear}`;
 
-        // alle Jahre im select-Element einfügen
-        for (let i=2000; i<=2099; i++) {                            // Grenzen sind fix, deswegen hard gecodet
+        // Jahresauswahl von 2000 bis 2099 fuellen
+        for (let i=2000; i<=2099; i++) {
             const yearOption = document.createElement('option');
             yearOption.textContent = i;
             yearOption.value = i;
-            // aktuelles Jahr als Standart setzen
+
+            // Aktuelles Jahr vorauswaehlen
             if (i == getYear) {
                 yearOption.selected = true;
             }
@@ -158,26 +155,22 @@ document.addEventListener('DOMContentLoaded', async function() {
             const daysContainer = monthElement.querySelector('.days');
             const firstDay = new Date(getYear, monthIndex, 1).getDay();
             const lastDay = new Date(getYear, monthIndex + 1, 0).getDate();
-            let startDay = firstDay === 0 ? 6 : firstDay - 1;               // bei Js ist Sonntag = 0, man muss umrechnen, damit Montag = 0
+            let startDay = firstDay === 0 ? 6 : firstDay - 1;
 
-            // leert Container, damit beim Neuladen nichts doppelt ist
+            // Alte Tageszellen entfernen
             daysContainer.innerHTML = '';
 
-
-            // KW der ersten Kalenderwoche
+            // Erste Kalenderwoche des Monats anzeigen
             const firstDate = new Date(getYear, monthIndex, 1 - startDay);
             let currentWeek = getCalenderWeek(firstDate);
 
-            // KW-Zelle für für die erste Zeile
             const kwDiv = document.createElement('div');
             kwDiv.textContent = currentWeek;
             kwDiv.classList.add('kw');
             daysContainer.appendChild(kwDiv);
 
-            // leere Tage vor Monatsbeginn
+            // Tage aus dem Vormonat auffuellen
             const prevMonthLastDay = new Date(getYear, monthIndex, 0).getDate();
-
-            // Tage der Monate richtig anordnen
             for( let i = startDay; i > 0; i--) {
                 const dayDiv = document.createElement('div');
                 dayDiv.textContent = prevMonthLastDay - i + 1;
@@ -185,11 +178,11 @@ document.addEventListener('DOMContentLoaded', async function() {
                 daysContainer.appendChild(dayDiv)
             }
 
-            // erstellt für alle Tage ein Div 
+            // Tage des aktuellen Monats erzeugen
             for(let i = 1; i <= lastDay; i++) {
                 const currentDayDate = new Date(getYear, monthIndex, i);
 
-                // Wenn Montag & nicht der 1. Tag: neue KW-Zelle einfügen
+                // Bei Wochenbeginn neue KW-Zelle einfuegen
                 if(currentDayDate.getDay() === 1 && i !== 1) {
                     const kwDiv = document.createElement('div');
                     kwDiv.textContent = getCalenderWeek(currentDayDate);
@@ -200,20 +193,17 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const dayDiv = document.createElement('div');
                 dayDiv.textContent = i;
 
-                // markiert den heutigen Tag
+                // Heutigen Tag markieren
                 if(i === today.getDate() && monthIndex === today.getMonth() && getYear === today.getFullYear()) {
                     dayDiv.classList.add('today');
                 }
 
-                // Feiertage prüfen und markieren
+                // Feiertage markieren und klickbar machen
                 const feiertagName = getFeiertagName(getYear, monthIndex + 1, i);
                 if (feiertagName) {
                     dayDiv.classList.add('feiertag');
                     dayDiv.dataset.feiertag = feiertagName;
-
-                    // Klick: Feiertagname anzeigen
                     dayDiv.addEventListener('click', () => zeigModal(`${feiertagName} - ${i}. ${monthIndex + 1}. ${getYear}`));
-
                 }
                 else {
                     dayDiv.addEventListener('click', async () => {
@@ -223,21 +213,18 @@ document.addEventListener('DOMContentLoaded', async function() {
                         let daten;
 
                         if (gespeichert) {
-                            // Daten lesen
+                            // Gespeicherte Geburtstage verwenden
                             daten = JSON.parse(gespeichert);
                         }
                         else {
-                            // Daten speichern
+                            // Geburtstage laden und platzsparend speichern
                             daten = await ladeGeburtstage(String(monthIndex + 1).padStart(2, '0'), String(i).padStart(2, '0'));
-                            
-                            //reduziert die Datenn nur auf den Namen und das Geburtsjahr, damit der Speicher nicht direkt voll wird 
                             const reduziert = daten.map(person => ({text: person.text, year: person.year}));
-                            
                             localStorage.setItem(key, JSON.stringify(reduziert));
-
                             daten = reduziert;
                         }
 
+                        // Fuenf zufaellige Eintraege auswaehlen
                         while (zufaellige.length < 5) {
                             const person =
                                 daten[Math.floor(Math.random() * daten.length)];
@@ -247,8 +234,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                             }
                         }
 
+                        // Ausgewaehlte Geburtstage im Modal anzeigen
                         let text = '';
-
                         for (const person of zufaellige) {
                             text += `${person.text}, ${person.year}\n`;
                         }
@@ -257,12 +244,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                     });
                 }
 
-
                 daysContainer.appendChild(dayDiv);
-
             }
 
-            // Tage des nächsten Monat
+            // Tage aus dem Folgemonat auffuellen
             const nextMonthStartDay = 8 - new Date(getYear, monthIndex + 1, 0).getDay() - 1;
             for(let i = 1; i <= nextMonthStartDay; i++) {
                 const dayDiv = document.createElement('div');
@@ -270,23 +255,21 @@ document.addEventListener('DOMContentLoaded', async function() {
                 dayDiv.classList.add('fade');
                 daysContainer.appendChild(dayDiv);
             }
-
         });
-
     }
 
-    // lädt PWA neu
+    // Kalender wieder auf heute setzen
     load.addEventListener('click', function() {
         renderCalender(today);
     });
 
-    // wählt das Jahr im select-Element aus + ändert den kalender 
+    // Kalender bei geaenderter Jahresauswahl neu rendern
     select.addEventListener('change', function() {
         const year = new Date(select.value, 0, 1);
         renderCalender(year);
     });
 
-    // Jahr verringern, wenn man auf zurück klickt
+    // Ein Jahr zurueckblaettern
     prevButton.addEventListener('click', function() {
        let newYear = currentDate.getFullYear() - 1;
 
@@ -294,10 +277,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             currentDate.setFullYear(newYear);
             renderCalender(currentDate);
         }
-        
     });
 
-    // Jahr erhöhen, wenn man auf das Nächste klickt
+    // Ein Jahr weiterblaettern
     nextButton.addEventListener('click', function() {
         let newYear = currentDate.getFullYear() + 1;
 
@@ -305,18 +287,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             currentDate.setFullYear(newYear);
             renderCalender(currentDate);
         }
-        
-    });
-
-    hide.addEventListener('click', function() {
-        if(topbar.style.display == 'none') {
-            topbar.style.display = 'flex';
-        }
-        else {
-            topbar.style.display = 'none';
-
-        }
-
     });
 
     renderCalender(currentDate);
