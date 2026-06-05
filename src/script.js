@@ -126,10 +126,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         modal.style.display = 'flex';
     }
 
-    // Browser-Titel dynamisch setzen
-    const aktuellesDatum = today.getFullYear();
-    document.title = `Jahreskalender ${aktuellesDatum}`;
-
     // Feiertage vor dem Rendern laden
     await ladeFeiertage();
 
@@ -138,6 +134,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         const getYear = date.getFullYear();
 
         yearContainter.textContent = `${getYear}`;
+
+        // Browser-Titel dynamisch setzen
+        document.title = `Jahreskalender ${getYear}`;
 
         // Jahresauswahl von 2000 bis 2099 fuellen
         select.innerHTML = '';
