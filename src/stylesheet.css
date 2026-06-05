@@ -12,6 +12,12 @@ body {
     background-color: #333333;
 }
 
+.header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 1px;
+}
+
 /* Container fuer Jahresauswahl, Navigationspfeile und Reload-Button */
 .topbar {
     display: flex;
@@ -55,7 +61,7 @@ body {
 }
 
 /* Flaeche und Hintergrund fuer Reload- und Hide-Button */
-#newload {
+#newload, #hide {
     background-color: #111111;
     width: 50px;
     height: 50px;

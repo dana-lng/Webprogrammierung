@@ -12,7 +12,7 @@ Die PWA zeigt alle Monate eines Jahres übersichtlich an und hebt sowohl aktuell
 
 ### Technologien
 * HTML5
-* CSS3 (inkl. Grid Layout)
+* CSS (inkl. Grid Layout)
 * JavaScript (Vanilla)
 
 ### Datenverarbeitung
@@ -20,7 +20,7 @@ Feiertage:
 * Statisch: fest definiert
 * Dynamisch: berechnet (z. B. Gaußsche Osterformel)
 Speicherung:
-* JSON (lokal oder extern geladen)
+* JSON 
 
 ### API
 * Nutzung der Wikimedia API ("On this day")

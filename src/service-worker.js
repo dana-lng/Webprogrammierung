@@ -2,8 +2,8 @@ const CACHE_NAME = 'kalender-v1';
 const FILES_TO_CACHE = [
   '/',
   '/index.html',
-  '/style.css',
-  '/app.js',
+  '/stylesheet.css',
+  '/script.js',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png'

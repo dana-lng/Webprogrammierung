@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const topbar = document.querySelector('.topbar');
     const modal = document.getElementById('modal');
     const modalText = document.getElementById('modal-text');
+    const hide = document.getElementById('hide');
 
     // Modal schliessen
     document.getElementById('modal-close').addEventListener('click', () => { modal.style.display = 'none';})
@@ -139,6 +140,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         yearContainter.textContent = `${getYear}`;
 
         // Jahresauswahl von 2000 bis 2099 fuellen
+        select.innerHTML = '';
+
         for (let i=2000; i<=2099; i++) {
             const yearOption = document.createElement('option');
             yearOption.textContent = i;
@@ -248,7 +251,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             // Tage aus dem Folgemonat auffuellen
-            const nextMonthStartDay = 8 - new Date(getYear, monthIndex + 1, 0).getDay() - 1;
+            const lastDayOfMonth = new Date(getYear, monthIndex + 1, 0).getDay();
+            const nextMonthStartDay = lastDayOfMonth === 0 ? 0 : 7 - lastDayOfMonth;
             for(let i = 1; i <= nextMonthStartDay; i++) {
                 const dayDiv = document.createElement('div');
                 dayDiv.textContent = i;
@@ -260,18 +264,19 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Kalender wieder auf heute setzen
     load.addEventListener('click', function() {
+        currentDate = new Date(today);
         renderCalender(today);
     });
 
     // Kalender bei geaenderter Jahresauswahl neu rendern
     select.addEventListener('change', function() {
-        const year = new Date(select.value, 0, 1);
-        renderCalender(year);
+        currentDate = new Date(parseInt(select.value), 0, 1);
+        renderCalender(currentDate);
     });
 
     // Ein Jahr zurueckblaettern
     prevButton.addEventListener('click', function() {
-       let newYear = currentDate.getFullYear() - 1;
+        let newYear = currentDate.getFullYear() - 1;
 
         if (newYear >= 2000) {
             currentDate.setFullYear(newYear);
@@ -286,6 +291,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (newYear <= 2099) {
             currentDate.setFullYear(newYear);
             renderCalender(currentDate);
+        }
+    });
+
+    // Topbar ein- und ausblenden
+    hide.addEventListener('click', function() {
+        if(topbar.style.display == 'none') {
+            topbar.style.display = 'flex';
+        }
+        else {
+            topbar.style.display = 'none';
         }
     });
 
